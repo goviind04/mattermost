@@ -14,6 +14,7 @@ import type SettingItemMinComponent from 'components/setting_item_min';
 
 import {Constants} from 'utils/constants';
 import {applyTheme} from 'utils/utils';
+import {Preferences} from 'mattermost-redux/constants';
 
 import type {ModalData} from 'types/actions';
 
@@ -78,14 +79,14 @@ export default class ThemeSetting extends React.PureComponent<Props, State> {
     }
 
     getStateFromProps(props = this.props): State {
-        const theme = {...props.theme};
+        const theme = {...Preferences.THEMES.denim};
         if (!theme.codeTheme) {
             theme.codeTheme = Constants.DEFAULT_CODE_THEME;
         }
 
         return {
             theme,
-            type: theme.type || 'premade',
+            type: 'premade',
             showAllTeamsCheckbox: props.showAllTeamsCheckbox,
             applyToAllTeams: props.applyToAllTeams,
             serverError: '',
@@ -153,95 +154,27 @@ export default class ThemeSetting extends React.PureComponent<Props, State> {
             serverError = this.state.serverError;
         }
 
-        const displayCustom = this.state.type === 'custom';
-
-        let custom;
+        // `displayCustom` is not used; theme selection is fixed.
         let premade;
-        if (displayCustom && this.props.allowCustomThemes) {
-            custom = (
-                <div key='customThemeChooser'>
-                    <CustomThemeChooser
-                        theme={this.state.theme}
-                        updateTheme={this.updateTheme}
-                    />
-                </div>
-            );
-        } else {
-            premade = (
-                <div key='premadeThemeChooser'>
-                    <br/>
-                    <PremadeThemeChooser
-                        theme={this.state.theme}
-                        updateTheme={this.updateTheme}
-                    />
-                </div>
-            );
-        }
+
+        // Always show only Denim theme and disable theme switching
+        premade = (
+            <div key='premadeThemeChooser'>
+                <br/>
+                <PremadeThemeChooser
+                    theme={Preferences.THEMES.denim}
+                    updateTheme={() => {}}
+                    readOnly={true}
+                />
+            </div>
+        );
 
         let themeUI;
         if (this.props.selected) {
             const inputs = [];
 
-            if (this.props.allowCustomThemes) {
-                inputs.push(
-                    <div
-                        key='premadeCustom'
-                        className='user-settings__radio-group-inline'
-                    >
-                        <div className='radio radio-inline'>
-                            <label>
-                                <input
-                                    id='standardThemes'
-                                    type='radio'
-                                    name='theme'
-                                    checked={!displayCustom}
-                                    onChange={this.updateType.bind(this, 'premade')}
-                                />
-                                <FormattedMessage
-                                    id='user.settings.display.theme.premadeThemes'
-                                    defaultMessage='Premade Themes'
-                                />
-                            </label>
-                        </div>
-                        <div className='radio radio-inline'>
-                            <label>
-                                <input
-                                    id='customThemes'
-                                    type='radio'
-                                    name='theme'
-                                    checked={displayCustom}
-                                    onChange={this.updateType.bind(this, 'custom')}
-                                />
-                                <FormattedMessage
-                                    id='user.settings.display.theme.customTheme'
-                                    defaultMessage='Custom Theme'
-                                />
-                            </label>
-                        </div>
-                    </div>,
-                );
-
-                inputs.push(premade, custom);
-
-                inputs.push(
-                    <div key='otherThemes'>
-                        <br/>
-                        <ExternalLink
-                            id='otherThemes'
-                            href='http://docs.mattermost.com/help/settings/theme-colors.html#custom-theme-examples'
-                            location='user_settings_theme'
-                        >
-                            <FormattedMessage
-                                id='user.settings.display.theme.otherThemes'
-                                defaultMessage='See other themes'
-                            />
-                        </ExternalLink>
-                    </div>,
-                );
-            } else {
-                inputs.push(premade);
-            }
-
+            // Only a single fixed theme (Denim) is supported. User cannot switch themes.
+            inputs.push(premade);
             let allTeamsCheckbox = null;
             if (this.state.showAllTeamsCheckbox) {
                 allTeamsCheckbox = (

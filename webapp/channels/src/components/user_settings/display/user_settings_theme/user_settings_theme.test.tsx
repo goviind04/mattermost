@@ -64,25 +64,34 @@ describe('components/user_settings/display/user_settings_theme/user_settings_the
         expect(requiredProps.actions.saveTheme).toHaveBeenCalled();
     });
 
-    it('should show premade themes when custom themes are disabled', () => {
+    it('should show only denim theme and disable theme selection', async () => {
         const props = {
             ...requiredProps,
             selected: true,
-            allowCustomThemes: false,
+            allowCustomThemes: true,
         };
 
         renderWithContext(
             <UserSettingsTheme {...props}/>,
         );
 
-        // Premade theme chooser should still be rendered
         expect(screen.getByText('Save')).toBeInTheDocument();
-        expect(screen.queryByLabelText('Premade Themes')).not.toBeInTheDocument();
-        expect(screen.queryByLabelText('Custom Theme')).not.toBeInTheDocument();
 
-        // The premade themes should be visible (theme thumbnails are rendered)
+        // No radio selection inputs should be visible
+        expect(screen.queryByRole('radio', {name: /Premade Themes/i})).not.toBeInTheDocument();
+        expect(screen.queryByRole('radio', {name: /Custom Theme/i})).not.toBeInTheDocument();
+
+        // Only one premade theme card shown for Denim
         const premadeThemes = document.querySelectorAll('.premade-themes');
-        expect(premadeThemes.length).toBeGreaterThan(0);
+        expect(premadeThemes).toHaveLength(1);
+
+        const themeButton = document.querySelector('.premadeThemeButton') as HTMLButtonElement;
+        expect(themeButton).toBeDisabled();
+
+        if (themeButton) {
+            await userEvent.click(themeButton);
+            expect(requiredProps.setRequireConfirm).not.toHaveBeenCalled();
+        }
     });
 
     it('should deleteTeamSpecificThemes if applyToAllTeams is enabled', async () => {

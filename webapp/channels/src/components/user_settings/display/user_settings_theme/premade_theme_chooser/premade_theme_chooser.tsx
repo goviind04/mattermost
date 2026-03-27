@@ -14,10 +14,11 @@ import ThemeThumbnail from '../theme_thumbnail';
 type Props = {
     theme: Theme;
     updateTheme: (theme: Theme) => void;
-    allowedThemes: string[];
+    allowedThemes?: string[];
+    readOnly?: boolean;
 }
 
-const PremadeThemeChooser = ({theme, updateTheme, allowedThemes = []}: Props) => {
+const PremadeThemeChooser = ({theme, updateTheme, allowedThemes = [], readOnly = false}: Props) => {
     const premadeThemes = [];
     const hasAllowedThemes = allowedThemes.length > 1 || (allowedThemes[0] && allowedThemes[0].trim().length > 0);
 
@@ -42,7 +43,16 @@ const PremadeThemeChooser = ({theme, updateTheme, allowedThemes = []}: Props) =>
                     <button
                         id={`premadeTheme${premadeTheme.type?.replace(' ', '')}`}
                         className={`premadeThemeButton ${activeClass}`}
-                        onClick={() => updateTheme(premadeTheme)}
+                        onClick={(e) => {
+                            if (!readOnly) {
+                                updateTheme(premadeTheme);
+                            } else {
+                                e.preventDefault();
+                                e.stopPropagation();
+                            }
+                        }}
+                        disabled={readOnly}
+                        style={readOnly ? {cursor: 'not-allowed', pointerEvents: 'none'} : undefined}
                     >
                         <label>
                             <ThemeThumbnail
