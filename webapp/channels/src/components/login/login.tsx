@@ -321,7 +321,7 @@ const Login = ({onCustomizeHeader}: LoginProps) => {
                     }),
                     '',
                     '',
-                    false, 
+                    false, // silent
                     DesktopNotificationSounds.BING,
                     `${Client4.getUrl()}/login`,
                 );
