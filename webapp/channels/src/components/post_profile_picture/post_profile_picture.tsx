@@ -9,7 +9,7 @@ import type {UserProfile} from '@mattermost/types/users';
 import {ensureString} from 'mattermost-redux/utils/post_utils';
 
 import ProfilePicture from 'components/profile_picture';
-import defaultPostLogo from 'images/brainerhub-logo.png';
+import defaultPostLogo from 'images/brainerhub_logo_light.png';
 
 import Constants, {UserStatuses} from 'utils/constants';
 import * as PostUtils from 'utils/post_utils';

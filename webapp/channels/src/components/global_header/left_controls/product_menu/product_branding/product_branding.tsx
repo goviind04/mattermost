@@ -6,7 +6,7 @@ import styled from 'styled-components';
 
 import glyphMap, {ProductChannelsIcon} from '@mattermost/compass-icons/components';
 import type {IconGlyphTypes} from '@mattermost/compass-icons/IconGlyphs';
-import brainerhubLogoPng from 'images/brainerhub_logo.png';
+import brainerhubLogoPng from 'images/brainerhub_logo_light.png';
 
 import {useCurrentProduct} from 'utils/products';
 

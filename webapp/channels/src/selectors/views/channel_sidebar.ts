@@ -23,6 +23,7 @@ import {shouldShowUnreadsCategory, isCollapsedThreadsEnabled} from 'mattermost-r
 import {getCurrentTeamId} from 'mattermost-redux/selectors/entities/teams';
 import {memoizeResult} from 'mattermost-redux/utils/helpers';
 
+import {Constants} from 'utils/constants';
 import type {DraggingState, GlobalState} from 'types/store';
 
 export function isUnreadFilterEnabled(state: GlobalState): boolean {
@@ -80,6 +81,12 @@ export const getChannelsInCategoryOrder = (() => {
                 const channels = channelsByCategory[category.id];
 
                 return channels.filter((channel: Channel) => {
+                    
+                    // Hide Town Square channel from the list
+                    if (channel.name === Constants.DEFAULT_CHANNEL) {
+                        return false;
+                    }
+
                     const isUnread = unreadChannelIds.has(channel.id);
 
                     if (showUnreadsCategory) {
@@ -119,6 +126,11 @@ export const getUnreadChannels = (() => {
                 const channel = allChannels[channelId];
 
                 if (channel) {
+                    // Skip Town Square channel (don't show in unread list)
+                    if (channel.name === Constants.DEFAULT_CHANNEL) {
+                        continue;
+                    }
+
                     // Only include an archived channel if it's the current channel
                     if (channel.delete_at > 0 && channel.id !== currentChannelId) {
                         continue;
@@ -197,13 +209,23 @@ export function makeGetFilteredChannelIdsForCategory(): (state: GlobalState, cat
         'makeGetFilteredChannelIdsForCategory',
         getChannelIdsForCategory,
         getUnreadChannelIdsSet,
+        getAllChannels,
         (state: GlobalState) => shouldShowUnreadsCategory(state),
-        (channelIds, unreadChannelIdsSet, showUnreadsCategory) => {
+        (channelIds, unreadChannelIdsSet, allChannels, showUnreadsCategory) => {
+            let filtered = channelIds.filter((id) => {
+                const channel = allChannels[id];
+                // Hide Town Square channel
+                if (channel && channel.name === Constants.DEFAULT_CHANNEL) {
+                    return false;
+                }
+                return true;
+            });
+
             if (!showUnreadsCategory) {
-                return channelIds;
+                return filtered;
             }
 
-            const filtered = channelIds.filter((id) => !unreadChannelIdsSet.has(id));
+            filtered = filtered.filter((id) => !unreadChannelIdsSet.has(id));
 
             return filtered.length === channelIds.length ? channelIds : filtered;
         },
@@ -220,13 +242,21 @@ export function makeGetUnreadIdsForCategory(): (state: GlobalState, category: Ch
         'makeGetFilteredChannelIdsForCategory',
         getChannelIdsForCategory,
         getUnreadChannelIdsSet,
+        getAllChannels,
         (state: GlobalState) => shouldShowUnreadsCategory(state),
-        (channelIds, unreadChannelIdsSet, showUnreadsCategory) => {
+        (channelIds, unreadChannelIdsSet, allChannels, showUnreadsCategory) => {
             if (showUnreadsCategory) {
                 return emptyList;
             }
 
-            const filtered = channelIds.filter((id) => unreadChannelIdsSet.has(id));
+            let filtered = channelIds.filter((id) => {
+                const channel = allChannels[id];
+                // Hide Town Square channel
+                if (channel && channel.name === Constants.DEFAULT_CHANNEL) {
+                    return false;
+                }
+                return unreadChannelIdsSet.has(id);
+            });
 
             if (filtered.length === 0) {
                 return emptyList;
