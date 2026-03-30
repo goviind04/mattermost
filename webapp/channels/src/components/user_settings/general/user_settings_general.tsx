@@ -721,6 +721,11 @@ export class UserSettingsGeneralTab extends PureComponent<Props, State> {
                                     name='currentPassword'
                                     type='password'
                                     onChange={this.updateCurrentPassword}
+                                    onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                                        if (e.key === 'Enter') {
+                                            this.submitEmail();
+                                        }
+                                    }}
                                     value={this.state.currentPassword}
                                     aria-label={formatMessage({id: 'user.settings.general.currentPassword', defaultMessage: 'Current Password'})}
                                     validate={(value) => {
@@ -992,6 +997,11 @@ export class UserSettingsGeneralTab extends PureComponent<Props, State> {
                                 autoFocus={true}
                                 type='text'
                                 onChange={this.updateFirstName}
+                                onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                                    if (e.key === 'Enter') {
+                                        this.submitName();
+                                    }
+                                }}
                                 maxLength={Constants.MAX_FIRSTNAME_LENGTH}
                                 value={this.state.firstName}
                                 onFocus={Utils.moveCursorToEnd}
@@ -1021,6 +1031,11 @@ export class UserSettingsGeneralTab extends PureComponent<Props, State> {
                                 name='lastName'
                                 type='text'
                                 onChange={this.updateLastName}
+                                onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                                    if (e.key === 'Enter') {
+                                        this.submitName();
+                                    }
+                                }}
                                 maxLength={Constants.MAX_LASTNAME_LENGTH}
                                 value={this.state.lastName}
                                 aria-label={formatMessage({id: 'user.settings.general.lastName', defaultMessage: 'Last Name'})}
@@ -1157,6 +1172,11 @@ export class UserSettingsGeneralTab extends PureComponent<Props, State> {
                                 autoFocus={true}
                                 type='text'
                                 onChange={this.updateNickname}
+                                onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                                    if (e.key === 'Enter') {
+                                        this.submitNickname();
+                                    }
+                                }}
                                 value={this.state.nickname}
                                 maxLength={Constants.MAX_NICKNAME_LENGTH}
                                 autoCapitalize='off'
@@ -1271,6 +1291,11 @@ export class UserSettingsGeneralTab extends PureComponent<Props, State> {
                                 maxLength={Constants.MAX_USERNAME_LENGTH}
                                 type='text'
                                 onChange={this.updateUsername}
+                                onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                                    if (e.key === 'Enter') {
+                                        this.submitUsername();
+                                    }
+                                }}
                                 value={this.state.username}
                                 autoCapitalize='off'
                                 onFocus={Utils.moveCursorToEnd}
@@ -1379,6 +1404,11 @@ export class UserSettingsGeneralTab extends PureComponent<Props, State> {
                                 autoFocus={true}
                                 type='text'
                                 onChange={this.updatePosition}
+                                onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                                    if (e.key === 'Enter') {
+                                        this.submitPosition();
+                                    }
+                                }}
                                 value={this.state.position}
                                 maxLength={Constants.MAX_POSITION_LENGTH}
                                 autoCapitalize='off'
@@ -1608,6 +1638,11 @@ export class UserSettingsGeneralTab extends PureComponent<Props, State> {
                                         autoFocus={true}
                                         type={inputType}
                                         onChange={this.updateAttribute}
+                                        onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                                            if (e.key === 'Enter') {
+                                                this.submitAttribute([attribute.id]);
+                                            }
+                                        }}
                                         value={getDisplayValue(this.state.customAttributeValues[attribute.id]) as string}
                                         maxLength={Constants.MAX_CUSTOM_ATTRIBUTE_LENGTH}
                                         autoCapitalize='off'
