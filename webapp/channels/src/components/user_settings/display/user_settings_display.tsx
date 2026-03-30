@@ -103,6 +103,7 @@ type Props = OwnProps & {
     configTeammateNameDisplay: string;
     shouldAutoUpdateTimezone: boolean | string;
     lockTeammateNameDisplay: boolean;
+    isCurrentUserSystemAdmin: boolean;
     militaryTime: string;
     teammateNameDisplay: string;
     availabilityStatusOnPosts: string;
@@ -777,7 +778,7 @@ export default class UserSettingsDisplay extends React.PureComponent<Props, Stat
             }),
         });
 
-        const teammateNameDisplaySection = this.createSection({
+        const teammateNameDisplaySection = this.props.isCurrentUserSystemAdmin ? this.createSection({
             section: Preferences.NAME_NAME_FORMAT,
             display: 'teammateNameDisplay',
             value: this.props.lockTeammateNameDisplay ? this.props.configTeammateNameDisplay : this.state.teammateNameDisplay,
@@ -818,7 +819,7 @@ export default class UserSettingsDisplay extends React.PureComponent<Props, Stat
                 defaultMessage: 'Set how to display other user\'s names in posts and the Direct Messages list.',
             }),
             disabled: this.props.lockTeammateNameDisplay,
-        });
+        }) : null;
 
         const availabilityStatusOnPostsSection = this.createSection({
             section: 'availabilityStatus',

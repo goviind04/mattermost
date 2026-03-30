@@ -33,6 +33,7 @@ import type {GlobalState} from 'types/store';
 
 import type {OwnProps} from './user_settings_display';
 import UserSettingsDisplay from './user_settings_display';
+import { isSystemAdmin } from 'mattermost-redux/utils/user_utils';
 
 export function makeMapStateToProps() {
     return (state: GlobalState, props: OwnProps) => {
@@ -48,7 +49,14 @@ export function makeMapStateToProps() {
 
         const enableLinkPreviews = config.EnableLinkPreviews === 'true';
         const enableThemeSelection = config.EnableThemeSelection === 'true';
-        const lockTeammateNameDisplay = getLicense(state).LockTeammateNameDisplay === 'true' && config.LockTeammateNameDisplay === 'true';
+        
+        // Get current user to check admin status
+        const currentUserForAdminCheck = getUser(state, getCurrentUserId(state));
+        const isCurrentUserSystemAdmin = currentUserForAdminCheck ? isSystemAdmin(currentUserForAdminCheck.roles) : false;
+        
+        // Lock teammate name display for non-admin users
+        const lockTeammateNameDisplay = !isCurrentUserSystemAdmin || (getLicense(state).LockTeammateNameDisplay === 'true' && config.LockTeammateNameDisplay === 'true');
+        
         const configTeammateNameDisplay = config.TeammateNameDisplay as string;
         const emojiPickerEnabled = config.EnableEmojiPicker === 'true';
         const lastActiveTimeEnabled = config.EnableLastActiveTime === 'true';
@@ -77,6 +85,7 @@ export function makeMapStateToProps() {
             timezoneLabel,
             userTimezone,
             shouldAutoUpdateTimezone,
+            isCurrentUserSystemAdmin,
             availabilityStatusOnPosts: get(state, Preferences.CATEGORY_DISPLAY_SETTINGS, Preferences.AVAILABILITY_STATUS_ON_POSTS, Preferences.AVAILABILITY_STATUS_ON_POSTS_DEFAULT, userPreference),
             militaryTime: get(state, Preferences.CATEGORY_DISPLAY_SETTINGS, Preferences.USE_MILITARY_TIME, Preferences.USE_MILITARY_TIME_DEFAULT, userPreference),
             teammateNameDisplay: get(state, Preferences.CATEGORY_DISPLAY_SETTINGS, Preferences.NAME_NAME_FORMAT, configTeammateNameDisplay, userPreference),

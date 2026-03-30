@@ -2,6 +2,7 @@
 // See LICENSE.txt for license information.
 
 import React from 'react';
+import {useSelector} from 'react-redux';
 import styled from 'styled-components';
 
 import glyphMap, {ProductChannelsIcon} from '@mattermost/compass-icons/components';
@@ -9,6 +10,9 @@ import type {IconGlyphTypes} from '@mattermost/compass-icons/IconGlyphs';
 import brainerhubLogoPng from 'images/brainerhub_logo_light.png';
 
 import {useCurrentProduct} from 'utils/products';
+import {getCurrentUser} from 'mattermost-redux/selectors/entities/users';
+import {getTeammateNameDisplaySetting} from 'mattermost-redux/selectors/entities/preferences';
+import {displayUsername} from 'mattermost-redux/utils/user_utils';
 
 const ProductBrandingContainer = styled.span`
     display: flex;
@@ -28,6 +32,8 @@ const ProductBrandingHeading = styled.span`
 
 const ProductBranding = (): JSX.Element => {
     const currentProduct = useCurrentProduct();
+    const currentUser = useSelector(getCurrentUser);
+    const teammateNameDisplaySetting = useSelector(getTeammateNameDisplaySetting);
 
     // Render the BrainerHub logo as the main product icon in the header.
     const renderIcon = () => (
@@ -39,15 +45,23 @@ const ProductBranding = (): JSX.Element => {
             style={{borderRadius: '4px', objectFit: 'contain'}}
         />
     );
+    
+    // Display user name and position concatenated
+    const getDisplayText = () => {
+        if (currentUser) {
+            return displayUsername(currentUser, teammateNameDisplaySetting);
+        }
+        return currentProduct ? currentProduct.switcherText : 'Channels';
+    };
 
     return (
         <ProductBrandingContainer tabIndex={-1}>
             {/* {renderIcon()} */}
             <h1 className='sr-only'>
-                {currentProduct ? currentProduct.switcherText : 'Channels'}
+                {getDisplayText()}
             </h1>
             <ProductBrandingHeading>
-                {currentProduct ? currentProduct.switcherText : 'Channels'}
+                {getDisplayText()}
             </ProductBrandingHeading>
         </ProductBrandingContainer>
     );

@@ -42,7 +42,7 @@ export function displayUsername(
         }
     }
 
-    return name;
+    return user?.position ? name + " - " + user.position : name;
 }
 
 export function spaceSeparatedStringIncludes(item: string, spaceSeparated?: string): boolean {
