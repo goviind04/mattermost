@@ -201,7 +201,7 @@ var config = {
                 {from: 'src/images/purchase_alert.png', to: 'images'},
                 {from: 'src/images/brainerhub-logo.png', to: 'images'},
                 {from: 'src/images/brainerhub_logo_full.png', to: 'images'},
-                {from: 'src/images/brainerhub_logo_light.png', to: 'images'},
+                {from: 'src/images/BrainerHub-Light-Icon.png', to: 'images'},
                 {from: 'src/fonts/Metropolis-SemiBold.woff', to: 'fonts'},
                 {from: 'src/fonts/open-sans-v18-vietnamese_latin-ext_latin_greek-ext_greek_cyrillic-ext_cyrillic-regular.woff2', to: 'fonts'},
                 {from: 'src/fonts/open-sans-v18-vietnamese_latin-ext_latin_greek-ext_greek_cyrillic-ext_cyrillic-regular.woff', to: 'fonts'},
