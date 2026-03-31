@@ -65,7 +65,7 @@ const PasswordResetForm = ({location, siteName, actions}: Props) => {
 
     return (
         <div className='col-sm-12'>
-            <div className='signup-team__container'>
+            <div className='signup-team__container reset-password-form'>
                 <FormattedMessage
                     id='password_form.title'
                     tagName='h1'

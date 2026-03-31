@@ -96,11 +96,12 @@
         .login-body-card {
             width: 540px;
             box-sizing: border-box;
-            border: 1px solid rgba(var(--center-channel-color-rgb), 0.08);
+            border: 1px solid #eee;
             border-radius: 16px;
             margin-left: 60px;
             background-color: var(--center-channel-bg);
             box-shadow: var(--elevation-5);
+            // background-color: white;
 
             &.with-error {
                 @include mixins.shake-horizontally;
@@ -113,6 +114,7 @@
                 padding: 40px;
                 border: none;
                 box-shadow: none;
+                
 
                 .login-body-card-title {
                     color: var(--center-channel-color);
@@ -286,6 +288,9 @@
 
                 .login-body-card-content {
                     padding: 16px 24px;
+                    background: #222529;
+        border-radius: 16px;
+        margin: 16px;
 
                     .login-body-card-title {
                         display: none;
@@ -361,3 +366,4 @@
 a.alternate-link__link{
     color: #BF4252;
 }
+
