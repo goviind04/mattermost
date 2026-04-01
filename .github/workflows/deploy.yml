@@ -16,9 +16,11 @@ jobs:
         
       - name: Stop Server
         run: make stop-server
+        working-directory: server
           
       - name: Wait for Server to Stop
         run: sleep 3
         
       - name: Start Server
         run: ./start-detached.sh
+        working-directory: server
