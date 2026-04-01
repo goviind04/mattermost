@@ -124,11 +124,11 @@ class AnnouncementBarController extends React.PureComponent<Props> {
                 {autoStartTrialModal}
                 <ShowThreeDaysLeftTrialModal/>
                 <VersionBar/>
-                <ConfigurationAnnouncementBar
+                {/* <ConfigurationAnnouncementBar
                     config={this.props.config}
                     license={this.props.license}
                     canViewSystemErrors={this.props.canViewSystemErrors}
-                />
+                /> */}
             </>
         );
     }

@@ -53,7 +53,7 @@ export default function DisplayNameStep({teamDisplayName, isValidTeamName, onDis
                 </label>
                 <div className={nameDivClass}>
                     <div className='row'>
-                        <div className='col-sm-9'>
+                        <div className='col-sm-12'>
                             <Input
                                 id='teamNameInput'
                                 name='teamNameInput'
@@ -71,7 +71,7 @@ export default function DisplayNameStep({teamDisplayName, isValidTeamName, onDis
                     </div>
                     {nameErrorLabel}
                 </div>
-                <div>
+                <div className='help-text'>
                     <FormattedMessage
                         id='create_team.display_name.nameHelp'
                         defaultMessage='Name your team in any language. Your team name shows in menus and headings.'

@@ -3,6 +3,8 @@
 
 @use 'utils/mixins';
 
+@import './footer.scss';
+
 .header-footer-route {
     position: relative;
     display: flex;

@@ -106,16 +106,15 @@ export default function SidebarTeamMenu(props: Props) {
                 <LeaveTeamMenuItem/>
             )}
             {(canJoinAnotherTeam || havePermissionToCreateTeam) && <Menu.Separator/>}
-            {canJoinAnotherTeam &&
+            {/* {canJoinAnotherTeam &&
                 <JoinAnotherTeamMenuItem/>
-            }
+            } */}
             {havePermissionToCreateTeam && (
                 <CreateTeamMenuItem
                     isCloud={isCloud}
                 />
             )}
-            <Menu.Separator/>
-            <PluginMenuItems/>
+            {/* <Menu.Separator/> */}
         </Menu.Container>
     );
 }

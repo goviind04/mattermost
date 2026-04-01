@@ -486,3 +486,39 @@ button#passwordResetButton{
 .reset-password-form .Input_container .Input{
     background: transparent;
 }
+.signup-team__container.create-team{
+    background: #222529;
+    border-radius: 16px;
+    padding: 40px;
+}
+.signup-team__container.create-team h1#site_name{
+    color: #fff;
+}
+.signup-team__container.create-team h3{
+    font-size: 16px;
+}
+.signup-team__container.create-team .form-control:focus{
+    box-shadow: none
+}
+.signup-team__container.create-team .color--light,
+.signup-team__container.create-team  .help-text,
+.signup-team__container.create-team  label{
+    color:#eeeaea !important;
+}
+.signup-page-container.create-team .form-control,
+.create-team #teamNameInput{
+    background:transparent !important;
+    background-color: transparent !important;
+     
+}
+.create-team ul{
+    text-align: left;
+}
+
+.create-team .btn.btn-primary{
+    background: #BF4252;
+
+    &:hover{
+        background: #d45c6c;
+    }
+}

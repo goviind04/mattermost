@@ -58,7 +58,7 @@ export default function TeamUrlStep({teamURL, nameError, isLoading, teamURLInput
                 </label>
                 <div className={nameDivClass}>
                     <div className='row'>
-                        <div className='col-sm-11'>
+                        <div className='col-sm-12'>
                             <div className='input-group input-group--limit'>
                                 <WithTooltip
                                     title={title}
@@ -86,7 +86,7 @@ export default function TeamUrlStep({teamURL, nameError, isLoading, teamURLInput
                     </div>
                     {nameErrorLabel}
                 </div>
-                <p>
+                <p className='help-text'>
                     <FormattedMessage
                         id='create_team.team_url.webAddress'
                         defaultMessage='Choose the web address of your new team:'

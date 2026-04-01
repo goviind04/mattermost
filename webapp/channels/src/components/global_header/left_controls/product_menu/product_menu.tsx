@@ -33,6 +33,7 @@ import ProductMenuItem from './product_menu_item';
 import ProductMenuList from './product_menu_list';
 
 import {useClickOutsideRef} from '../../hooks';
+import {getCurrentUser} from 'mattermost-redux/selectors/entities/users';
 
 export const ProductMenuContainer = styled.nav`
     display: flex;
@@ -90,6 +91,9 @@ const ProductMenu = (): JSX.Element => {
         localStorage.setItem(OnboardingTaskCategory, 'true');
     };
 
+
+    const currentUser = useSelector(getCurrentUser);
+const isSystemAdmin = currentUser?.roles?.includes('system_admin');
     useClickOutsideRef(menuRef, () => {
         if (!switcherOpen) {
             return;
@@ -121,6 +125,8 @@ const ProductMenu = (): JSX.Element => {
             <MenuWrapper
                 open={switcherOpen}
             >
+                {isSystemAdmin && (
+
                 <ProductMenuContainer onClick={handleClick}>
                     <ProductMenuButton
                         aria-expanded={switcherOpen}
@@ -142,6 +148,7 @@ const ProductMenu = (): JSX.Element => {
                         )}
                     </ProductMenuButton>
                 </ProductMenuContainer>
+                )}
                 <Menu
                     listId={'product-switcher-menu-dropdown'}
                     className={'product-switcher-menu'}
@@ -161,11 +168,7 @@ const ProductMenu = (): JSX.Element => {
                         onClick={handleClick}
                         handleVisitConsoleClick={handleVisitConsoleClick}
                     />
-                    <Menu.Group>
-                        <Menu.StartTrial
-                            id='startTrial'
-                        />
-                    </Menu.Group>
+                   
                 </Menu>
             </MenuWrapper>
         </div>
