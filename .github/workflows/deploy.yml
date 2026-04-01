@@ -1,0 +1,24 @@
+name: Deploy Mattermost Server
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: teams-runner
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        
+      - name: Stop Server
+        run: make stop-server
+          
+      - name: Wait for Server to Stop
+        run: sleep 3
+        
+      - name: Start Server
+        run: ./start-detached.sh
