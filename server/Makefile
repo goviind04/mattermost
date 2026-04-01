@@ -601,7 +601,9 @@ ifeq ($(MM_USE_PGVECTOR),true)
 endif
 
 	mkdir -p $(BUILD_WEBAPP_DIR)/channels/dist/files
-	$(GO) run $(GOFLAGS) -ldflags '$(LDFLAGS)' -tags '$(BUILD_TAGS)' $(PLATFORM_FILES) $(RUN_IN_BACKGROUND)
+	@setsid $(GO) run $(GOFLAGS) -ldflags '$(LDFLAGS)' -tags '$(BUILD_TAGS)' $(PLATFORM_FILES) > mattermost.log 2>&1 < /dev/null & echo $$! > mattermost.pid
+	@sleep 2
+	@echo "Server started in detached mode. PID: $$(cat mattermost.pid). Logs: tail -f mattermost.log"
 
 run-server-pgvector: ## Starts the server with pgvector PostgreSQL image.
 	@MM_USE_PGVECTOR=true $(MAKE) run-server
