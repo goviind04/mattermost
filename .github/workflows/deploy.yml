@@ -22,7 +22,7 @@ jobs:
           clean: false
         
       - name: Stop Server
-        run: make stop-server
+        run: sudo make stop-server
         working-directory: server
           
       - name: Wait for Server to Stop
