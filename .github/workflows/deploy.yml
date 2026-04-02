@@ -13,8 +13,8 @@ jobs:
     steps:
       - name: Fix Git Permissions
         run: |
-          sudo chown -R $USER:$USER /home/ubuntu/mattermost/.git 2>/dev/null || true
-          sudo chmod -R u+w /home/ubuntu/mattermost/.git/objects 2>/dev/null || true
+          sudo chown -R ubuntu:ubuntu $GITHUB_WORKSPACE/.git 2>/dev/null || true
+          sudo chmod -R u+w $GITHUB_WORKSPACE/.git/objects 2>/dev/null || true
         
       - name: Checkout Repository
         uses: actions/checkout@v3
