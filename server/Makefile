@@ -674,13 +674,19 @@ ifeq ($(BUILDER_GOOS_GOARCH),"windows_amd64")
 	wmic process where "Caption='go.exe' and CommandLine like '%go.exe run%'" call terminate
 	wmic process where "Caption='mattermost.exe' and CommandLine like '%go-build%'" call terminate
 else
+	@if [ -f mattermost.pid ]; then \
+		PID=$$(cat mattermost.pid); \
+		echo "Stopping server with PID $$PID"; \
+		kill $$PID 2>/dev/null || true; \
+		rm -f mattermost.pid; \
+	fi
 	@for PID in $$(ps -ef | grep "[g]o run" | grep "mattermost" | awk '{ print $$2 }'); do \
 		echo stopping go $$PID; \
-		kill $$PID; \
+		kill $$PID 2>/dev/null || true; \
 	done
 	@for PID in $$(ps -ef | grep "[g]o-build" | grep "mattermost" | awk '{ print $$2 }'); do \
 		echo stopping mattermost $$PID; \
-		kill $$PID; \
+		kill $$PID 2>/dev/null || true; \
 	done
 endif
 
