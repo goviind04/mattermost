@@ -344,6 +344,7 @@ const Login = ({onCustomizeHeader}: LoginProps) => {
                 })).then(({callback: closeNotification}) => {
                     closeSessionExpiredNotification.current = closeNotification;
                 }).catch(() => {
+                    console.log('Failed to display the notification.');
                     // Ignore the failure to display the notification.
                 });
             }
