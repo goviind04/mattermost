@@ -11,26 +11,23 @@ jobs:
     runs-on: teams-runner
     
     steps:
-      - name: Fix Git Permissions
-        run: |
-          sudo chown -R ubuntu:ubuntu $GITHUB_WORKSPACE/.git 2>/dev/null || true
-          sudo chmod -R u+w $GITHUB_WORKSPACE/.git/objects 2>/dev/null || true
-        
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-        with:
-          clean: true
-          force: true
-        
       - name: Stop Server
-        run: sudo make stop-server
-        working-directory: server
+        run: |
+          cd /home/ubuntu/mattermost/server
+          sudo make stop-server
           
       - name: Wait for Server to Stop
         run: sleep 3
         
+      - name: Pull Latest Changes
+        run: |
+          cd /home/ubuntu/mattermost
+          sudo chown -R ubuntu:ubuntu .git 2>/dev/null || true
+          git fetch origin
+          git reset --hard origin/master
+        
       - name: Start Server
         run: |
+          cd /home/ubuntu/mattermost/server
           sudo chown ubuntu:ubuntu mattermost.pid 2>/dev/null || true
           ./start-detached.sh
-        working-directory: server
