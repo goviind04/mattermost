@@ -142,8 +142,8 @@
 .AlertBanner--sys {
     &.danger {
         border-color: rgba(var(--sys-error-text-color-rgb), 0.24);
-        // background: rgba(var(--sys-error-text-color-rgb), 0.08);
-        background: #fff;
+        background: rgba(var(--sys-error-text-color-rgb), 0.08);
+        // background: #fff;
 
         .AlertBanner__icon {
             color: var(--sys-error-text);

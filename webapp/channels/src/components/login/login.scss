@@ -96,7 +96,8 @@
         .login-body-card {
             width: 540px;
             box-sizing: border-box;
-            border: 1px solid #eee;
+            // border: 1px solid #eee;
+            border: 1px solid rgba(var(--center-channel-color-rgb), 0.08);
             border-radius: 16px;
             margin-left: 60px;
             background-color: var(--center-channel-bg);

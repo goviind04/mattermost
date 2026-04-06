@@ -112,7 +112,7 @@ export class CreateTeam extends React.PureComponent<Props & RouteComponentProps,
             <div>
                 <BackButton url={url}/>
                 <div className='col-sm-12'>
-                    <div className='signup-team__container create-team'>
+                    <div className='signup-team__container'>
                         <SiteNameAndDescription
                             customDescriptionText={customDescriptionText}
                             siteName={siteName}
