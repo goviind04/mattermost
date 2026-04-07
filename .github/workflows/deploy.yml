@@ -11,23 +11,18 @@ jobs:
     runs-on: teams-runner
     
     steps:
-      - name: Stop Server
-        run: |
-          cd /home/ubuntu/mattermost/server
-          sudo make stop-server
+      - name: Stop Mattermost Service
+        run: sudo systemctl stop mattermost
+        continue-on-error: true
           
-      - name: Wait for Server to Stop
-        run: sleep 3
-        
       - name: Pull Latest Changes
         run: |
-          cd /home/ubuntu/mattermost
-          sudo chown -R ubuntu:ubuntu .git 2>/dev/null || true
+          cd /home/ubuntu/mattermost-runner/_work/mattermost/mattermost
           git fetch origin
           git reset --hard origin/master
         
-      - name: Start Server
-        run: |
-          cd /home/ubuntu/mattermost/server
-          sudo chown ubuntu:ubuntu mattermost.pid 2>/dev/null || true
-          ./start-detached.sh
+      - name: Fix Permissions
+        run: sudo chown -R ubuntu:ubuntu /home/ubuntu/mattermost-runner
+        
+      - name: Start Mattermost Service
+        run: sudo systemctl start mattermost
