@@ -8,7 +8,7 @@ import {useIntl} from 'react-intl';
 
 import {Client4} from 'mattermost-redux/client';
 
-import defaultAvatarIcon from 'images/BrainerHub-Light-Icon.png';
+import defaultAvatarIcon from 'images/b_chat_logo.png';
 
 import './avatar.scss';
 

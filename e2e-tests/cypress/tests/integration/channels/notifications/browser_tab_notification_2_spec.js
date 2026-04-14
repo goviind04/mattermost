@@ -68,7 +68,7 @@ describe('Notifications', () => {
         cy.get('.unread-title').should('not.exist');
 
         //* Favicons should be default(blue)
-        verifyFaviconEquals('favicon-default-16x16.png');
+        verifyFaviconEquals('b_chat_logo.svg');
 
         // # Have the other user post an at-mention for you in any channel on team B
         cy.apiGetChannelByName(team2.name, 'off-topic').then(({channel}) => {

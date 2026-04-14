@@ -47,7 +47,7 @@
 
             .login-body-message-title {
                 padding-right: 24px;
-                color: #BF4252;
+                color: #3f0f3f ;
                 font-family: 'Lato', sans-serif;                        
                 font-size: 80px;
                 font-weight: 600;
@@ -81,10 +81,10 @@
                 }
 
                 .login-body-custom-branding-image {
-                    max-height: 240px;
-                    align-self: self-start;
+                    max-height: 280px;
+                    align-self: center;
                     border-radius: 8px;
-                    margin-bottom: 28px;
+                    // margin-bottom: 28px;
                 }
             }
 
@@ -151,14 +151,14 @@
                         a {
                             
                             // @include mixins.link;
-                            color: #BF4252;
+                            color: #3f0f3f ;
                         }
                     }
 
                     .login-body-card-form-button-submit {
                         // @include mixins.primary-button;
                         @include mixins.button-large;
-                        background: #BF4252 !important;
+                        background: #3f0f3f !important;
                         width: 100%;
                         margin-top: 30px;
                         border-radius: 8px
@@ -365,6 +365,6 @@
     }
 }
 a.alternate-link__link{
-    color: #BF4252;
+    color: #3f0f3f;
 }
 

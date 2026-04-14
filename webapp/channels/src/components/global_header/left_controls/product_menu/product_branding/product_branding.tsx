@@ -7,7 +7,7 @@ import styled from 'styled-components';
 
 import glyphMap, {ProductChannelsIcon} from '@mattermost/compass-icons/components';
 import type {IconGlyphTypes} from '@mattermost/compass-icons/IconGlyphs';
-import brainerhubLogoPng from 'images/BrainerHub-Light-Icon.png';
+import brainerhubLogoPng from 'images/b_chat_logo.png';
 
 import {useCurrentProduct} from 'utils/products';
 import {getCurrentUser} from 'mattermost-redux/selectors/entities/users';

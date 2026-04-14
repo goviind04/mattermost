@@ -3,7 +3,7 @@
 }
 
 .info {
-    color: #bf4252;
+    color: #3f0f3f ;
 }
 
 .warning {
@@ -148,18 +148,18 @@
 
         &:hover {
             // border-color: rgba(var(--center-channel-color-rgb), 0.48);
-            border-color: #BF4252;
+            border-color: #3f0f3f ;
         }
 
         &:focus-within {
             border-color: var(--button-bg);
             // box-shadow: inset 0 0 0 1px var(--button-bg);
             color: var(--button-bg);
-            border-color: #BF4252;
+            border-color: #3f0f3f ;
 
             .Input_legend {
                 // color: var(--button-bg);
-                color: #BF4252;
+                color: #3f0f3f ;
             }
         }
     }
@@ -230,4 +230,25 @@
 }
 .login-body-card-form  .Input_container .Input {
     background-color: transparent !important;
+}
+
+/* Default input */
+input {
+  background-color: transparent;
+}
+
+/* Chrome, Safari, Edge autofill */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
+  -webkit-text-fill-color: inherit !important;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+/* For Firefox */
+input:-moz-autofill {
+  background-color: transparent !important;
+  color: inherit !important;
 }

@@ -50,7 +50,7 @@
 
 .get-app__graphic {
     flex: 0 0 600px;
-    background-color: var(--sidebar-bg);
+    background: var(--sidebar-bg);
 
     &.mobile {
         flex: 0 1 300px;

@@ -19,7 +19,7 @@ body {
     }
 
     &.admin-onboarding {
-        background-image: url("images/admin-onboarding-background.jpg");
+        // background-image: url("images/admin-onboarding-background.jpg");
         background-repeat: no-repeat;
         background-size: cover;
     }
@@ -92,7 +92,7 @@ body {
 /* stylelint-disable -- grid-template indentation */
 
 body.app__body {
-    background-color: var(--sidebar-header-bg);
+    background: var(--sidebar-header-bg);
 }
 
 body.admin-onboarding #root {
@@ -167,7 +167,7 @@ body.app__body #root {
         position: relative;
         display: grid;
         overflow: hidden;
-        background-color: var(--sidebar-bg);
+        background: var(--sidebar-bg);
         border: var(--border-light);
         margin: 0 4px 4px 4px;
         border-radius: var(--radius-l);
