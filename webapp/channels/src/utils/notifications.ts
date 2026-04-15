@@ -1,8 +1,8 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import icon50 from 'images/icon50x50.png';
-import iconWS from 'images/icon_WS.png';
+import icon50 from 'images/b_chat_logo.png';
+import iconWS from 'images/b_chat_logo.png';
 import * as UserAgent from 'utils/user_agent';
 
 import type {ThunkActionFunc} from 'types/store';
