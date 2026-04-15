@@ -289,9 +289,11 @@
 
                 .login-body-card-content {
                     padding: 16px 24px;
-                    background: #222529;
-        border-radius: 16px;
-        margin: 16px;
+                    border: 1px solid rgba(var(--center-channel-color-rgb), 0.08);
+                    border-radius: 16px;
+                    background-color: var(--center-channel-bg);
+                    margin:0 20px;
+       
 
                     .login-body-card-title {
                         display: none;
