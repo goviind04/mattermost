@@ -6,6 +6,7 @@ import {defineMessage} from 'react-intl';
 import {useDispatch, useSelector} from 'react-redux';
 import {useLocation, useParams} from 'react-router-dom';
 
+import {isDesktopApp} from '@mattermost/shared/utils/user_agent';
 import type {Channel} from '@mattermost/types/channels';
 
 import {fetchChannelsAndMembers, selectChannel} from 'mattermost-redux/actions/channels';
@@ -16,7 +17,7 @@ import {selectTeam} from 'mattermost-redux/actions/teams';
 import {getThread} from 'mattermost-redux/actions/threads';
 import {getProfilesByIds} from 'mattermost-redux/actions/users';
 import {getChannel, getCurrentChannel} from 'mattermost-redux/selectors/entities/channels';
-import {getTeamByName} from 'mattermost-redux/selectors/entities/teams';
+import {isScheduledPostsEnabled} from 'mattermost-redux/selectors/entities/scheduled_posts';
 import {makeGetThreadOrSynthetic} from 'mattermost-redux/selectors/entities/threads';
 import {getCurrentUserId} from 'mattermost-redux/selectors/entities/users';
 
@@ -24,6 +25,7 @@ import {loadStatusesByIds} from 'actions/status_actions';
 import {selectPost} from 'actions/views/rhs';
 import {markThreadAsRead} from 'actions/views/threads';
 
+import {useTeamByName} from 'components/common/hooks/use_team';
 import {usePost} from 'components/common/hooks/usePost';
 import {useUser} from 'components/common/hooks/useUser';
 import ThreadPane from 'components/threading/global_threads/thread_pane';
@@ -32,8 +34,8 @@ import UnreadsStatusHandler from 'components/unreads_status_handler';
 
 import {getHistory} from 'utils/browser_history';
 import {Constants} from 'utils/constants';
+import usePopoutFocus from 'utils/popouts/use_popout_focus';
 import usePopoutTitle from 'utils/popouts/use_popout_title';
-import {isDesktopApp} from 'utils/user_agent';
 
 import type {GlobalState} from 'types/store';
 
@@ -61,7 +63,7 @@ export default function ThreadPopout() {
     const currentUserId = useSelector(getCurrentUserId);
 
     const post = usePost(postId);
-    const team = useSelector((state: GlobalState) => getTeamByName(state, teamName));
+    const team = useTeamByName(teamName);
     const channel = useSelector((state: GlobalState) => getChannel(state, post?.channel_id ?? ''));
     const currentChannel = useSelector(getCurrentChannel);
     useUser(currentChannel?.type === Constants.DM_CHANNEL && currentChannel.teammate_id ? currentChannel.teammate_id : '');
@@ -71,6 +73,7 @@ export default function ThreadPopout() {
         }
         return getThreadOrSynthetic(state, post);
     });
+    const isScheduledPostEnabled = useSelector(isScheduledPostsEnabled);
 
     usePopoutTitle(getThreadPopoutTitle(channel));
 
@@ -91,10 +94,12 @@ export default function ThreadPopout() {
     useEffect(() => {
         if (teamId) {
             dispatch(fetchChannelsAndMembers(teamId));
-            dispatch(fetchTeamScheduledPosts(teamId, true));
+            if (isScheduledPostEnabled) {
+                dispatch(fetchTeamScheduledPosts(teamId, true));
+            }
             dispatch(selectTeam(teamId));
         }
-    }, [dispatch, teamId]);
+    }, [dispatch, teamId, isScheduledPostEnabled]);
 
     useEffect(() => {
         if (teamId) {
@@ -119,6 +124,8 @@ export default function ThreadPopout() {
             fetchPostThread();
         }
     }, [postId, dispatch, currentUserId, teamId]);
+
+    usePopoutFocus(channelId, postId);
 
     useEffect(() => {
         function handleFocus() {

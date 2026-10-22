@@ -7,13 +7,6 @@ import {renderWithContext} from 'tests/react_testing_utils';
 
 import DraftActions from './draft_actions';
 
-jest.mock('components/with_tooltip', () => ({
-    __esModule: true,
-    default: ({children}: {children: React.ReactNode}) => (
-        <div data-testid='with-tooltip'>{children}</div>
-    ),
-}));
-
 describe('components/drafts/draft_actions', () => {
     const baseProps = {
         displayName: '',
@@ -26,6 +19,7 @@ describe('components/drafts/draft_actions', () => {
         canEdit: true,
         onSchedule: jest.fn(),
         channelId: '',
+        allowRecurring: true,
     };
 
     it('should match snapshot', () => {

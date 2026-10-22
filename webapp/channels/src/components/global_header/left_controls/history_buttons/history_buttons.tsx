@@ -1,10 +1,12 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, type JSX} from 'react';
 import {useIntl} from 'react-intl';
 import {useHistory} from 'react-router-dom';
 import styled from 'styled-components';
+
+import {WithTooltip} from '@mattermost/shared/components/tooltip';
 
 import IconButton from 'components/global_header/header_icon_button';
 import KeyboardShortcutSequence, {
@@ -12,7 +14,6 @@ import KeyboardShortcutSequence, {
 } from 'components/keyboard_shortcuts/keyboard_shortcuts_sequence';
 import type {
     KeyboardShortcutDescriptor} from 'components/keyboard_shortcuts/keyboard_shortcuts_sequence';
-import WithTooltip from 'components/with_tooltip';
 
 import DesktopApp from 'utils/desktop_api';
 

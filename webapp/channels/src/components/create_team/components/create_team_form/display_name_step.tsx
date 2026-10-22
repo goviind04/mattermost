@@ -1,9 +1,11 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import type {ReactNode} from 'react';
+import type {ReactNode, JSX} from 'react';
 import React from 'react';
 import {FormattedMessage} from 'react-intl';
+
+import {Button} from '@mattermost/shared/components/button';
 
 import Input from 'components/widgets/inputs/input/input';
 
@@ -77,15 +79,16 @@ export default function DisplayNameStep({teamDisplayName, isValidTeamName, onDis
                         defaultMessage='Name your team in any language. Your team name shows in menus and headings.'
                     />
                 </div>
-                <button
+                <Button
                     id='teamNameNextButton'
                     type='submit'
-                    className='btn btn-primary mt-8'
+                    emphasis='primary'
+                    className='mt-8'
                     onClick={onSubmit}
                     disabled={!isValidTeamName || isLoading}
                 >
                     {buttonText}
-                </button>
+                </Button>
             </form>
         </div>
     );

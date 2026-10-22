@@ -23,11 +23,11 @@ func makeTestLocalProxy() *ImageProxy {
 	configService := &testutils.StaticConfigService{
 		Cfg: &model.Config{
 			ServiceSettings: model.ServiceSettings{
-				SiteURL:                             model.NewPointer("https://mattermost.example.com"),
-				AllowedUntrustedInternalConnections: model.NewPointer("127.0.0.1"),
+				SiteURL:                             new("https://mattermost.example.com"),
+				AllowedUntrustedInternalConnections: new("127.0.0.1"),
 			},
 			ImageProxySettings: model.ImageProxySettings{
-				Enable:         model.NewPointer(true),
+				Enable:         new(true),
 				ImageProxyType: model.NewPointer(model.ImageProxyTypeLocal),
 			},
 		},
@@ -474,5 +474,54 @@ func TestLocalBackend_GetImageDirect(t *testing.T) {
 		assert.Nil(t, body)
 
 		wait <- true
+	})
+
+	t.Run("image exceeds max size", func(t *testing.T) {
+		originalMaxImageSize := maxImageSize
+		maxImageSize = 10
+		defer func() { maxImageSize = originalMaxImageSize }()
+
+		handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "image/png")
+			w.WriteHeader(http.StatusOK)
+			w.Write(bytes.Repeat([]byte("1"), int(maxImageSize)+1))
+		})
+
+		mock := httptest.NewServer(handler)
+		defer mock.Close()
+
+		proxy := makeTestLocalProxy()
+
+		body, contentType, err := proxy.GetImageDirect(mock.URL + "/image.png")
+
+		assert.Error(t, err)
+		assert.Equal(t, ErrImageTooLarge, err)
+		assert.Equal(t, "", contentType)
+		assert.Nil(t, body)
+	})
+
+	t.Run("image within max size is unaffected", func(t *testing.T) {
+		originalMaxImageSize := maxImageSize
+		maxImageSize = 10
+		defer func() { maxImageSize = originalMaxImageSize }()
+
+		handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "image/png")
+			w.WriteHeader(http.StatusOK)
+			w.Write(bytes.Repeat([]byte("1"), int(maxImageSize)))
+		})
+
+		mock := httptest.NewServer(handler)
+		defer mock.Close()
+
+		proxy := makeTestLocalProxy()
+
+		body, contentType, err := proxy.GetImageDirect(mock.URL + "/image.png")
+
+		assert.NoError(t, err)
+		assert.Equal(t, "image/png", contentType)
+
+		respBody, _ := io.ReadAll(body)
+		assert.Equal(t, bytes.Repeat([]byte("1"), int(maxImageSize)), respBody)
 	})
 }

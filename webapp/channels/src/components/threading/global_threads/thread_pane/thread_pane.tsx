@@ -7,18 +7,18 @@ import type {ReactNode} from 'react';
 import {useIntl} from 'react-intl';
 import {useSelector, useDispatch} from 'react-redux';
 
-import {DotsVerticalIcon} from '@mattermost/compass-icons/components';
 import type {UserThread, UserThreadSynthetic} from '@mattermost/types/threads';
 
 import {setThreadFollow} from 'mattermost-redux/actions/threads';
 import {makeGetChannel} from 'mattermost-redux/selectors/entities/channels';
 import {getPost, makeGetPostsForThread} from 'mattermost-redux/selectors/entities/posts';
 
+import ChannelAttributeLabels from 'components/channel_attributes/channel_attribute_labels';
+import {ChannelLabelSurface} from 'components/common/hooks/useChannelLabels';
 import {focusPost} from 'components/permalink_view/actions';
 import PopoutButton from 'components/popout_button';
 import {getThreadPopoutTitle} from 'components/thread_popout/thread_popout';
 import Header from 'components/widgets/header';
-import WithTooltip from 'components/with_tooltip';
 
 import {popoutThread} from 'utils/popouts/popout_windows';
 
@@ -132,6 +132,12 @@ const ThreadPane = ({
                                 {channel?.display_name}
                             </Button>
                         </h3>
+                        <ChannelAttributeLabels
+                            channelId={channelId}
+                            surface={[ChannelLabelSurface.INFO, ChannelLabelSurface.HEADER]}
+                            allowEmptyVisible={true}
+                            interactive={false}
+                        />
                     </>
                 )}
                 right={(
@@ -142,22 +148,12 @@ const ThreadPane = ({
                         />
                         <PopoutButton onClick={popout}/>
                         <ThreadMenu
+                            idPrefix='thread-menu'
                             threadId={threadId}
                             isFollowing={isFollowing}
                             hasUnreads={isFollowing && Boolean((thread as UserThread).unread_replies || (thread as UserThread).unread_mentions)}
                             unreadTimestamp={unreadTimestamp}
-                        >
-                            <WithTooltip
-                                title={formatMessage({
-                                    id: 'threading.threadHeader.menu',
-                                    defaultMessage: 'More Actions',
-                                })}
-                            >
-                                <Button className='Button___icon Button___large'>
-                                    <DotsVerticalIcon size={18}/>
-                                </Button>
-                            </WithTooltip>
-                        </ThreadMenu>
+                        />
                     </>
                 )}
             />

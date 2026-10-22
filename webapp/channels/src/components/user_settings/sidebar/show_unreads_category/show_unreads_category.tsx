@@ -24,16 +24,16 @@ type Props = OwnProps & {
     savePreferences: (userId: string, preferences: PreferenceType[]) => Promise<ActionResult>;
     showUnreadsCategory: boolean;
     updateSection: (section: string) => void;
-}
+};
 
 type State = {
     active: boolean;
     checked: boolean;
     isSaving: boolean;
-}
+};
 
 export default class ShowUnreadsCategory extends React.PureComponent<Props, State> {
-    minRef: RefObject<SettingItemMinComponent>;
+    minRef: RefObject<SettingItemMinComponent | null>;
 
     constructor(props: Props) {
         super(props);

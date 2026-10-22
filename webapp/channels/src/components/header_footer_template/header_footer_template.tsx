@@ -8,8 +8,8 @@ import {getConfig} from 'mattermost-redux/selectors/entities/general';
 import '../header_footer_route/footer.scss';
 
 type Props = {
-    children?: React.ReactNode | React.ReactNodeArray;
-}
+    children?: React.ReactNode | readonly React.ReactNode[];
+};
 
 const HeaderFooterNotLoggedIn = (props: Props) => {
     const config = useSelector(getConfig);

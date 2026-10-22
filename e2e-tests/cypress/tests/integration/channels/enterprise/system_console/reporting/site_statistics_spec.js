@@ -9,7 +9,7 @@
 
 // Group: @channels @enterprise @system_console
 
-import * as TIMEOUTS from '../../../../../fixtures/timeouts';
+import * as TIMEOUTS from '@/fixtures/timeouts';
 
 describe('System Console > Site Statistics', () => {
     let testTeam;
@@ -169,7 +169,7 @@ describe('System Console > Site Statistics', () => {
             cy.uiOpenSettingsModal('Display').then(() => {
                 cy.findByText('Language').click();
                 cy.get('#displayLanguage').click();
-                cy.findByText('Français (Beta)').click();
+                cy.findByText('Français (Alpha)').click();
                 cy.uiSave();
             });
 

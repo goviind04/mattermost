@@ -2,17 +2,19 @@
 // See LICENSE.txt for license information.
 
 import type {PopoutViewProps} from '@mattermost/desktop-api';
+import {isDesktopApp} from '@mattermost/shared/utils/user_agent';
+import type {ChannelType} from '@mattermost/types/channels';
 
 import {Client4} from 'mattermost-redux/client';
 
-import {RHSStates} from 'utils/constants';
+import Constants, {RHSStates} from 'utils/constants';
 import DesktopApp from 'utils/desktop_api';
 import {getBasePath} from 'utils/url';
-import {isDesktopApp} from 'utils/user_agent';
 
 import type {RhsState, SearchType} from 'types/store/rhs';
 
 import BrowserPopouts from './browser_popouts';
+import {registerPopoutFocusListeners} from './focus';
 import {
     sendToParent as sendToParentBrowser,
     onMessageFromParent as onMessageFromParentBrowser,
@@ -21,6 +23,13 @@ import {
 const pluginPopoutListeners: Map<string, (teamName: string, channelName: string | undefined, listeners: Partial<PopoutListeners>) => void> = new Map();
 export function registerRHSPluginPopoutListener(pluginId: string, onPopoutOpened: (teamName: string, channelName: string | undefined, listeners: Partial<PopoutListeners>) => void) {
     pluginPopoutListeners.set(pluginId, onPopoutOpened);
+}
+
+export function getPopoutChannelTitle(channelType?: ChannelType) {
+    if (channelType === Constants.DM_CHANNEL || channelType === Constants.GM_CHANNEL) {
+        return {id: 'channel_popout.title.dm', defaultMessage: '{channelName} - {serverName}'};
+    }
+    return {id: 'channel_popout.title', defaultMessage: '{channelName} - {teamName} - {serverName}'};
 }
 
 export const FOCUS_REPLY_POST = 'focus-reply-post';
@@ -37,6 +46,8 @@ export async function popoutThread(
             titleTemplate,
         },
     );
+
+    registerPopoutFocusListeners(popoutListeners);
 
     popoutListeners?.onMessageFromPopout?.((channel: string, ...args: unknown[]) => {
         if (channel === FOCUS_REPLY_POST) {
@@ -113,6 +124,21 @@ export async function popoutRhsSearch(
         },
     );
 }
+export async function popoutChannel(
+    titleTemplate: string,
+    teamName: string,
+    path: string,
+    channelIdentifier: string,
+) {
+    const popoutListeners = await popout(
+        `${getBasePath()}/_popout/channel/${teamName}/${path}/${channelIdentifier}`,
+        {titleTemplate},
+    );
+
+    registerPopoutFocusListeners(popoutListeners);
+
+    return popoutListeners;
+}
 
 export async function popoutHelp() {
     return popout(
@@ -169,6 +195,10 @@ export function onMessageFromParent(listener: (channel: string, ...args: unknown
 
 export function isPopoutWindow() {
     return window.location.href.startsWith(`${Client4.getUrl()}/_popout/`);
+}
+
+export function isChannelPopoutWindow() {
+    return window.location.href.startsWith(`${Client4.getUrl()}/_popout/channel/`);
 }
 
 export function isThreadPopoutWindow(teamName: string, threadId: string) {

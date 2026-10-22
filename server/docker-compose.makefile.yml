@@ -5,7 +5,8 @@ services:
     ports:
       - "5435:5432"
     volumes:
-     - "/home/ubuntu/mattermost-data/postgres:/var/lib/postgresql/data"
+     # Postgres 15 data (the old Postgres 14 data stays untouched in .../postgres)
+     - "/home/ubuntu/mattermost-data/postgres15:/var/lib/postgresql/data"
     extends:
         file: build/docker-compose.common.yml
         service: postgres
@@ -20,6 +21,14 @@ services:
     extends:
         file: build/docker-compose.common.yml
         service: minio
+  azurite:
+    restart: 'no'
+    container_name: mattermost-azurite
+    ports:
+      - "10000:10000"
+    extends:
+        file: build/docker-compose.common.yml
+        service: azurite
   inbucket:
     restart: 'no'
     container_name: mattermost-inbucket

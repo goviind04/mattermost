@@ -41,7 +41,7 @@ type Props<T extends Channel> = {
     loadingMessage?: MessageDescriptor;
     noOptionsMessage?: MessageDescriptor;
     formatOptionLabel?: ComponentProps<typeof AsyncSelect<T>>['formatOptionLabel'];
-}
+};
 
 type State<T> = {
     options: T[];
@@ -63,7 +63,7 @@ export default class ChannelsInput<T extends Channel> extends React.PureComponen
         loadingMessage: messages.loading,
         noOptionsMessage: messages.noOptions,
     };
-    private selectRef: RefObject<SelectInstance<T, true>>;
+    private selectRef: RefObject<SelectInstance<T, true> | null>;
 
     constructor(props: Props<T>) {
         super(props);

@@ -1,7 +1,8 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import {Locator, expect} from '@playwright/test';
+import type {Locator} from '@playwright/test';
+import {expect} from '@playwright/test';
 
 import InfoSettings from './info_settings';
 import ConfigurationSettings from './configuration_settings';
@@ -27,9 +28,9 @@ export default class ChannelSettingsModal {
         this.infoTab = container.getByRole('tab', {name: 'info'});
         this.configurationTab = container.getByRole('tab', {name: 'configuration'});
 
-        this.infoSettings = new InfoSettings(container.locator('.ChannelSettingsModal__infoTab'));
+        this.infoSettings = new InfoSettings(container.getByTestId('channel-settings-info-tab'));
         this.configurationSettings = new ConfigurationSettings(
-            container.locator('.ChannelSettingsModal__configurationTab'),
+            container.getByTestId('channel-settings-configuration-tab'),
         );
     }
 
@@ -44,7 +45,15 @@ export default class ChannelSettingsModal {
     async close() {
         await this.closeButton.click();
 
-        await expect(this.container).not.toBeVisible({timeout: 10000});
+        // The modal uses a two-step close when there are unsaved changes:
+        // the first click warns the user (sets hasBeenWarned=true) but keeps the modal open;
+        // only the second click actually closes it. Click again if needed.
+        try {
+            await expect(this.container).not.toBeVisible({timeout: 1000});
+        } catch {
+            await this.closeButton.click();
+            await expect(this.container).not.toBeVisible({timeout: 10000});
+        }
     }
 
     async save() {

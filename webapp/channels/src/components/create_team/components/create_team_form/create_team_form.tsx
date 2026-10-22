@@ -1,8 +1,7 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import React, {useCallback, useMemo, useRef, useState} from 'react';
-import type {Button} from 'react-bootstrap';
+import React, {useCallback, useMemo, useRef, useState, type JSX} from 'react';
 import {FormattedMessage} from 'react-intl';
 import {useSelector} from 'react-redux';
 
@@ -222,7 +221,7 @@ export default function CreateTeamForm({step, state: parentState, updateParent, 
         [actions, stopLoading],
     );
 
-    const submitTeamUrl = useCallback(async (e: React.MouseEvent<Button, MouseEvent>) => {
+    const submitTeamUrl = useCallback(async (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.preventDefault();
 
         const teamNameValid = await teamNameValidations(teamURL.trim());

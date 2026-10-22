@@ -1,7 +1,7 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import {Page} from '@playwright/test';
+import type {Page} from '@playwright/test';
 
 import SystemConsoleNavbar from '@/ui/components/system_console/navbar';
 import SystemConsoleSidebar from '@/ui/components/system_console/sidebar';
@@ -15,7 +15,13 @@ import MobileSecurity from '@/ui/components/system_console/sections/environment/
 import Localization from '@/ui/components/system_console/sections/site_configuration/localization';
 import Notifications from '@/ui/components/system_console/sections/site_configuration/notifications';
 import UsersAndTeams from '@/ui/components/system_console/sections/site_configuration/users_and_teams';
+import BoardAttributes from '@/ui/components/system_console/sections/system_attributes/board_attributes';
+import GlobalAttributes from '@/ui/components/system_console/sections/system_attributes/global_attributes';
+import SystemProperties from '@/ui/components/system_console/sections/system_attributes/system_properties';
+import SessionAttributes from '@/ui/components/system_console/sections/system_attributes/session_attributes';
 import FeatureDiscovery from '@/ui/components/system_console/sections/system_users/feature_discovery';
+import PluginManagement from '@/ui/components/system_console/sections/plugins/plugin_management';
+import AdLdap from '@/ui/components/system_console/sections/authentication/ad_ldap';
 
 export default class SystemConsolePage {
     readonly page: Page;
@@ -44,15 +50,27 @@ export default class SystemConsolePage {
     readonly notifications: Notifications;
     readonly usersAndTeams: UsersAndTeams;
 
+    // System Attributes
+    readonly globalAttributes: GlobalAttributes;
+    readonly systemProperties: SystemProperties;
+    readonly sessionAttributes: SessionAttributes;
+    readonly boardAttributes: BoardAttributes;
+
     // Feature Discovery (license-gated features)
     readonly featureDiscovery: FeatureDiscovery;
+
+    // Plugins
+    readonly pluginManagement: PluginManagement;
+
+    // Authentication
+    readonly adLdap: AdLdap;
 
     constructor(page: Page) {
         this.page = page;
 
         // Layout
-        this.navbar = new SystemConsoleNavbar(page.locator('.backstage-navbar'));
-        this.sidebar = new SystemConsoleSidebar(page.locator('.admin-sidebar'));
+        this.navbar = new SystemConsoleNavbar(page.getByTestId('backstage-navbar'));
+        this.sidebar = new SystemConsoleSidebar(page.getByTestId('admin-sidebar'));
 
         const adminConsoleWrapper = page.locator('#adminConsoleWrapper');
         this.header = new SystemConsoleHeader(adminConsoleWrapper);
@@ -76,8 +94,20 @@ export default class SystemConsolePage {
         this.notifications = new Notifications(adminConsoleWrapper);
         this.usersAndTeams = new UsersAndTeams(adminConsoleWrapper);
 
+        // System Attributes
+        this.globalAttributes = new GlobalAttributes(adminConsoleWrapper);
+        this.systemProperties = new SystemProperties(adminConsoleWrapper);
+        this.sessionAttributes = new SessionAttributes(adminConsoleWrapper);
+        this.boardAttributes = new BoardAttributes(adminConsoleWrapper);
+
         // Feature Discovery
         this.featureDiscovery = new FeatureDiscovery(adminConsoleWrapper);
+
+        // Plugins
+        this.pluginManagement = new PluginManagement(adminConsoleWrapper);
+
+        // Authentication
+        this.adLdap = new AdLdap(adminConsoleWrapper);
     }
 
     async toBeVisible() {
@@ -88,5 +118,25 @@ export default class SystemConsolePage {
 
     async goto() {
         await this.page.goto('/admin_console');
+    }
+
+    /** Notifications settings URL is environment/notifications (sidebar groups under Site Configuration). */
+    async gotoNotificationsSettings() {
+        await this.page.goto('/admin_console/environment/notifications');
+    }
+
+    async gotoPluginManagement() {
+        await this.page.goto('/admin_console/plugins/plugin_management');
+        await this.pluginManagement.toBeVisible();
+    }
+
+    async gotoEditionAndLicense() {
+        await this.page.goto('/admin_console/about/license');
+        await this.editionAndLicense.toBeVisible();
+    }
+
+    async gotoAdLdap() {
+        await this.page.goto('/admin_console/authentication/ldap');
+        await this.adLdap.toBeVisible();
     }
 }

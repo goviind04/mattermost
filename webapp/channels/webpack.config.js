@@ -9,6 +9,7 @@ const url = require('url');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ExternalTemplateRemotesPlugin = require('external-remotes-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ImageMinimizerPlugin = require('image-minimizer-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const webpack = require('webpack');
@@ -106,24 +107,6 @@ var config = {
             {
                 test: /\.(png|eot|tiff|svg|woff2|woff|ttf|gif|mp3|jpg)$/,
                 type: 'asset/resource',
-
-                // Exclude font files from image optimization — imagemin-svgo
-                // cannot handle SVG font files and fails on Node.js >= 22
-                exclude: /node_modules\/(font-awesome|fonts)\//,
-                use: [
-
-                    // Skip image optimizations during development to speed up build time
-                    !DEV && {
-                        loader: 'image-webpack-loader',
-                        options: {},
-                    },
-                ],
-            },
-            {
-                // Font files from node_modules — serve as-is without image optimization
-                test: /\.(eot|svg|woff2|woff|ttf)$/,
-                include: /node_modules\/(font-awesome|fonts)\//,
-                type: 'asset/resource',
             },
             {
                 test: /\.apng$/,
@@ -194,6 +177,7 @@ var config = {
                 {from: 'src/images/logo_email_blue.png', to: 'images'},
                 {from: 'src/images/logo_email_dark.png', to: 'images'},
                 {from: 'src/images/logo_email_gray.png', to: 'images'},
+                {from: 'src/images/license_illustration.png', to: 'images'},
                 {from: 'src/images/forgot_password_illustration.png', to: 'images'},
                 {from: 'src/images/invite_illustration.png', to: 'images'},
                 {from: 'src/images/channel_icon.png', to: 'images'},
@@ -218,7 +202,7 @@ var config = {
                 {from: 'src/fonts/open-sans-v18-vietnamese_latin-ext_latin_greek-ext_greek_cyrillic-ext_cyrillic-regular.woff', to: 'fonts'},
                 {from: 'src/fonts/open-sans-v18-vietnamese_latin-ext_latin_greek-ext_greek_cyrillic-ext_cyrillic-600.woff2', to: 'fonts'},
                 {from: 'src/fonts/open-sans-v18-vietnamese_latin-ext_latin_greek-ext_greek_cyrillic-ext_cyrillic-600.woff', to: 'fonts'},
-                {from: '../node_modules/pdfjs-dist/cmaps', to: 'cmaps'},
+                {from: path.join(path.dirname(require.resolve('pdfjs-dist/package.json')), 'cmaps'), to: 'cmaps'},
             ],
         }),
 
@@ -396,9 +380,9 @@ async function initializeModuleFederation() {
 
             // Other containers will be forced to use the exact versions of shared modules that the web app provides.
             makeSharedModules([
+                '@hello-pangea/dnd',
                 'history',
                 'react',
-                'react-beautiful-dnd',
                 'react-bootstrap',
                 'react-dom',
                 'react-intl',
@@ -436,6 +420,49 @@ if (DEV) {
     // Production mode configuration
     config.mode = 'production';
     config.devtool = 'source-map';
+
+    // Optimize SVGs from src/ at module-build time so vendor SVG fonts (e.g. font-awesome)
+    // are never passed to svgo. Vendor SVGs get content-hashed names at emit time, making
+    // them indistinguishable from src/ assets in the optimization.minimizer phase.
+    config.module.rules.push({
+        test: /\.svg$/i,
+        include: [path.resolve(__dirname, 'src')],
+        enforce: 'pre',
+        loader: ImageMinimizerPlugin.loader,
+        options: {
+            minimizer: {
+                implementation: ImageMinimizerPlugin.svgoMinify,
+                options: {
+                    encodeOptions: {
+                        multipass: true,
+                        plugins: ['preset-default'],
+                    },
+                },
+            },
+        },
+    });
+
+    // Optimize images in production builds.
+    // GIFs are excluded from sharp: animated GIFs (e.g. Customize-Your-Experience.gif)
+    // lose frames or grow in size when re-encoded by sharp.
+    config.optimization = {
+        ...config.optimization,
+        minimizer: [
+            '...',
+            new ImageMinimizerPlugin({
+                minimizer: {
+                    implementation: ImageMinimizerPlugin.sharpMinify,
+                    filter: (source, sourcePath) => !sourcePath.endsWith('.gif'),
+                    options: {
+                        encodeOptions: {
+                            jpeg: {mozjpeg: true},
+                            png: {},
+                        },
+                    },
+                },
+            }),
+        ],
+    };
 }
 
 const env = {};

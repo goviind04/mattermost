@@ -3,7 +3,7 @@
 
 import classNames from 'classnames';
 import React from 'react';
-import type {CSSProperties} from 'react';
+import type {CSSProperties, JSX} from 'react';
 import {FormattedMessage} from 'react-intl';
 
 import type {FilterOptions} from 'components/admin_console/filter/filter';
@@ -27,14 +27,14 @@ export type Column = {
     width?: number;
     textAlign?: '-moz-initial' | 'inherit' | 'initial' | 'revert' | 'unset' | 'center' | 'end' | 'justify' | 'left' | 'match-parent' | 'right' | 'start' | undefined;
     overflow?: string;
-}
+};
 
 export type Row = {
     cells: {
         [key: string]: JSX.Element | string | null;
     };
     onClick?: () => void;
-}
+};
 
 type Props = {
     rows: Row[];
@@ -77,7 +77,7 @@ type State = {
 const MINIMUM_COLUMN_WIDTH = 100;
 
 class DataGrid extends React.PureComponent<Props, State> {
-    private ref: React.RefObject<HTMLDivElement>;
+    private ref: React.RefObject<HTMLDivElement | null>;
 
     static defaultProps = {
         term: '',
@@ -184,6 +184,7 @@ class DataGrid extends React.PureComponent<Props, State> {
         return (
             <div
                 className='DataGrid_rows'
+                data-testid='dataGrid-rows'
                 style={rowsContainerStyles || {}}
             >
                 {rowsToRender}
@@ -251,17 +252,22 @@ class DataGrid extends React.PureComponent<Props, State> {
             }
 
             footer = (
-                <div className='DataGrid_footer'>
+                <div
+                    className='DataGrid_footer'
+                    data-testid='dataGrid-footer'
+                >
                     <div className='DataGrid_cell'>
-                        <FormattedMessage
-                            id='admin.data_grid.paginatorCount'
-                            defaultMessage='{startCount, number} - {endCount, number} of {total, number}'
-                            values={{
-                                startCount,
-                                endCount,
-                                total,
-                            }}
-                        />
+                        <span data-testid='dataGrid-footer-paginationInfo'>
+                            <FormattedMessage
+                                id='admin.data_grid.paginatorCount'
+                                defaultMessage='{startCount, number} - {endCount, number} of {total, number}'
+                                values={{
+                                    startCount,
+                                    endCount,
+                                    total,
+                                }}
+                            />
+                        </span>
                         <button
                             aria-label='Previous page'
                             type='button'
@@ -292,6 +298,7 @@ class DataGrid extends React.PureComponent<Props, State> {
         return (
             <div
                 className={classNames('DataGrid', this.props.className)}
+                data-testid='dataGrid'
                 ref={this.ref}
             >
                 {this.renderSearch()}

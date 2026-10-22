@@ -1,7 +1,7 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See LICENSE.txt for license information.
 
-import React, {useEffect} from 'react';
+import React, {useEffect, type JSX} from 'react';
 import {useIntl} from 'react-intl';
 import {useSelector} from 'react-redux';
 
@@ -13,6 +13,7 @@ import {
     ViewGridPlusOutlineIcon,
     WebhookIncomingIcon,
 } from '@mattermost/compass-icons/components';
+import {isDesktopApp} from '@mattermost/shared/utils/user_agent';
 import type {UserProfile} from '@mattermost/types/users';
 
 import {Permissions} from 'mattermost-redux/constants';
@@ -30,7 +31,6 @@ import RestrictedIndicator from 'components/widgets/menu/menu_items/restricted_i
 import {FREEMIUM_TO_ENTERPRISE_TRIAL_LENGTH_DAYS} from 'utils/cloud_utils';
 import {LicenseSkus, ModalIdentifiers, MattermostFeatures} from 'utils/constants';
 import {makeUrlSafe} from 'utils/url';
-import * as UserAgent from 'utils/user_agent';
 
 import type {ModalData} from 'types/actions';
 
@@ -207,8 +207,6 @@ const ProductMenuList = (props: Props): JSX.Element | null => {
                         icon={<ViewGridPlusOutlineIcon size={18}/>}
                     />
                 </TeamPermissionGate>
-                
-               
             </div>
         </Menu.Group>
     );

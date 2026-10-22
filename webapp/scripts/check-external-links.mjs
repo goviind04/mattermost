@@ -14,6 +14,16 @@ const PERMALINK_PATTERN = /^https?:\/\/(www\.)?mattermost\.com\/pl\//;
 
 const PUSH_SERVER_PATTERN = /^https?:\/\/(([a-z0-9-]+\.)?push|hpns-[a-z]+)\.mattermost\.com(\/|$)/;
 const ROOT_DOMAIN_PATTERN = /^https?:\/\/(www\.)?mattermost\.com\/?$/;
+/** Marketing forms; often slow or block bot User-Agents — not reliable to verify in CI. */
+const FORMS_MATTERMOST_PATTERN = /^https?:\/\/forms\.mattermost\.com\//i;
+
+// Hosts whose bot-management (Cloudflare TLS fingerprint checks etc.) rejects
+// non-browser clients regardless of User-Agent spoofing, so we can't validate
+// them from CI.
+const UNCRAWLABLE_HOSTS = new Set([
+    'support.mattermost.com', // Zendesk fronted by Cloudflare bot mgmt
+    'www.mattermost.com', // Cloudflare bot mgmt; the apex host it redirects to is still checked
+]);
 
 const SOURCE_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx'];
 
@@ -140,40 +150,49 @@ async function checkUrlWithRedirects(originalUrl) {
     let currentUrl = originalUrl;
 
     for (let redirectCount = 0; redirectCount <= MAX_REDIRECTS; redirectCount++) {
-        const response = await fetch(currentUrl, {
+        let response = await fetch(currentUrl, {
             method: 'HEAD',
             redirect: 'manual',
             headers: FETCH_HEADERS,
             signal: AbortSignal.timeout(10000),
         });
 
+        // Some origins reject HEAD; retry with GET and let the outer loop
+        // handle any 3xx the GET returns so we still follow the chain.
         if (response.status === 405 || response.status === 403) {
-            const getResponse = await fetch(currentUrl, {
+            await response.body?.cancel();
+            response = await fetch(currentUrl, {
                 method: 'GET',
                 redirect: 'manual',
                 headers: FETCH_HEADERS,
                 signal: AbortSignal.timeout(10000),
             });
-            return processResponse(originalUrl, getResponse);
         }
 
-        const result = processResponse(originalUrl, response);
+        // Always release the response body — HEAD leaves it null (safe no-op),
+        // but the GET fallback returns real bodies we never read. Leaving them
+        // open pins sockets in undici's pool until finalization.
+        try {
+            const result = processResponse(originalUrl, response);
 
-        if (!result.redirect) {
-            return result;
+            if (!result.redirect) {
+                return result;
+            }
+
+            const location = response.headers.get('location');
+            if (!location) {
+                return {
+                    url: originalUrl,
+                    status: response.status,
+                    ok: false,
+                    error: 'Redirect without Location header',
+                };
+            }
+
+            currentUrl = new URL(location, currentUrl).href;
+        } finally {
+            await response.body?.cancel();
         }
-
-        const location = response.headers.get('location');
-        if (!location) {
-            return {
-                url: originalUrl,
-                status: response.status,
-                ok: false,
-                error: 'Redirect without Location header',
-            };
-        }
-
-        currentUrl = new URL(location, currentUrl).href;
     }
 
     return {
@@ -193,12 +212,14 @@ function processResponse(originalUrl, response) {
         return {url: originalUrl, status, ok: true};
     }
 
-    if (status === 301) {
-        return {url: originalUrl, status, ok: true};
-    }
-
+    // Follow every 3xx (including 301) to its final destination. Short-circuiting
+    // 301s as "OK" hides real 404s at the chain's end
     if (isRedirect) {
         return {url: originalUrl, status, redirect: true};
+    }
+
+    if (status === 429) {
+        return {url: originalUrl, status, ok: true, rateLimited: true};
     }
 
     if (response.ok) {
@@ -209,7 +230,14 @@ function processResponse(originalUrl, response) {
 }
 
 function shouldSkipUrlCheck(url) {
-    return PUSH_SERVER_PATTERN.test(url);
+    if (PUSH_SERVER_PATTERN.test(url) || FORMS_MATTERMOST_PATTERN.test(url)) {
+        return true;
+    }
+    try {
+        return UNCRAWLABLE_HOSTS.has(new URL(url).hostname);
+    } catch {
+        return false;
+    }
 }
 
 async function checkUrls(urls, concurrency = 5, silentProgress = false) {
@@ -235,11 +263,15 @@ async function checkUrls(urls, concurrency = 5, silentProgress = false) {
 
 function printResults(results, urlMap, nonPermalinkUrls) {
     const broken = results.filter((r) => !r.ok);
-    const working = results.filter((r) => r.ok);
+    const rateLimited = results.filter((r) => r.ok && r.rateLimited);
+    const working = results.filter((r) => r.ok && !r.rateLimited);
 
     console.log('\n' + chalk.bold('=== External Link Check Results ===\n'));
 
     console.log(chalk.green(`✓ ${working.length} URLs are accessible`));
+    if (rateLimited.length > 0) {
+        console.log(chalk.yellow(`⚠ ${rateLimited.length} URLs returned 429 (rate limited, skipped)`));
+    }
     if (broken.length > 0) {
         console.log(chalk.red(`✗ ${broken.length} URLs are broken`));
     }
@@ -247,6 +279,19 @@ function printResults(results, urlMap, nonPermalinkUrls) {
         console.log(chalk.yellow(`⚠ ${nonPermalinkUrls.length} URLs are not using permalink format (warning)`));
     }
     console.log();
+
+    if (rateLimited.length > 0) {
+        console.log(chalk.yellow.bold('Rate-limited URLs (warning only):\n'));
+        for (const result of rateLimited) {
+            console.log(chalk.yellow(`  ${result.url}`));
+            console.log(chalk.gray(`    Status: HTTP 429 (Too Many Requests)`));
+            console.log(chalk.gray(`    Found in:`));
+            for (const file of urlMap.get(result.url)) {
+                console.log(chalk.gray(`      - ${file}`));
+            }
+            console.log();
+        }
+    }
 
     if (broken.length > 0) {
         console.log(chalk.red.bold('Broken URLs:\n'));
@@ -284,13 +329,14 @@ function printResults(results, urlMap, nonPermalinkUrls) {
 
 function generateMarkdownSummary(results, urlMap, nonPermalinkUrls) {
     const broken = results.filter((r) => !r.ok);
-    const working = results.filter((r) => r.ok);
+    const rateLimited = results.filter((r) => r.ok && r.rateLimited);
+    const working = results.filter((r) => r.ok && !r.rateLimited);
 
     const lines = [];
 
     lines.push('## External Link Check Results\n');
 
-    if (broken.length === 0 && nonPermalinkUrls.length === 0) {
+    if (broken.length === 0 && nonPermalinkUrls.length === 0 && rateLimited.length === 0) {
         lines.push(`✅ **All ${working.length} mattermost.com URLs are valid and accessible**\n`);
         return lines.join('\n');
     }
@@ -298,6 +344,9 @@ function generateMarkdownSummary(results, urlMap, nonPermalinkUrls) {
     lines.push(`| Status | Count |`);
     lines.push(`|--------|-------|`);
     lines.push(`| ✅ Working | ${working.length} |`);
+    if (rateLimited.length > 0) {
+        lines.push(`| ⚠️ Rate limited / 429 (warning) | ${rateLimited.length} |`);
+    }
     if (broken.length > 0) {
         lines.push(`| ❌ Broken | ${broken.length} |`);
     }
@@ -305,6 +354,19 @@ function generateMarkdownSummary(results, urlMap, nonPermalinkUrls) {
         lines.push(`| ⚠️ Missing /pl/ prefix (warning) | ${nonPermalinkUrls.length} |`);
     }
     lines.push('');
+
+    if (rateLimited.length > 0) {
+        lines.push('### ⚠️ Rate-limited URLs (warning only)\n');
+        lines.push('> These URLs returned HTTP 429 (Too Many Requests) and could not be verified. They are not treated as failures.\n');
+        lines.push('| URL | Files |');
+        lines.push('|-----|-------|');
+
+        for (const result of rateLimited) {
+            const files = urlMap.get(result.url).map((f) => `\`${f}\``).join(', ');
+            lines.push(`| ${result.url} | ${files} |`);
+        }
+        lines.push('');
+    }
 
     if (broken.length > 0) {
         lines.push('### Broken URLs\n');
@@ -380,7 +442,12 @@ async function main() {
     if (jsonOutput) {
         const output = {
             total: results.length,
-            working: results.filter((r) => r.ok).length,
+            working: results.filter((r) => r.ok && !r.rateLimited).length,
+            rateLimited: results.filter((r) => r.rateLimited).map((r) => ({
+                url: r.url,
+                status: r.status,
+                files: urlMap.get(r.url),
+            })),
             broken: results.filter((r) => !r.ok).map((r) => ({
                 url: r.url,
                 status: r.status,

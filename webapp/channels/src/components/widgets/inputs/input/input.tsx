@@ -2,13 +2,12 @@
 // See LICENSE.txt for license information.
 
 import classNames from 'classnames';
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, type JSX} from 'react';
 import type {MessageDescriptor} from 'react-intl';
 import {useIntl} from 'react-intl';
 
 import {CloseCircleIcon} from '@mattermost/compass-icons/components';
-
-import WithTooltip from 'components/with_tooltip';
+import {WithTooltip} from '@mattermost/shared/components/tooltip';
 
 import {ItemStatus} from 'utils/constants';
 import {formatAsString} from 'utils/i18n';
@@ -25,7 +24,7 @@ export type CustomMessageInputType = {type?: 'info' | 'error' | 'warning' | 'suc
 export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement | HTMLTextAreaElement>, 'placeholder'> {
     required?: boolean;
     hasError?: boolean;
-    addon?: React.ReactElement;
+    addon?: React.ReactElement<any>;
     textPrefix?: string;
     inputPrefix?: JSX.Element;
     inputSuffix?: JSX.Element;
@@ -209,17 +208,17 @@ const Input = React.forwardRef((
     const warning = customInputLabel?.type === ItemStatus.WARNING;
 
     const clearButton = value && clearable ? (
-        <div
-            className='Input__clear'
-            onMouseDown={handleOnClear}
-            onTouchEnd={handleOnClear}
+        <WithTooltip
+            title={clearableTooltipText || formatMessage({id: 'widget.input.clear', defaultMessage: 'Clear'})}
         >
-            <WithTooltip
-                title={clearableTooltipText || formatMessage({id: 'widget.input.clear', defaultMessage: 'Clear'})}
+            <div
+                className='Input__clear'
+                onMouseDown={handleOnClear}
+                onTouchEnd={handleOnClear}
             >
                 <CloseCircleIcon size={18}/>
-            </WithTooltip>
-        </div>
+            </div>
+        </WithTooltip>
     ) : null;
 
     const generateInput = () => {
@@ -229,7 +228,7 @@ const Input = React.forwardRef((
         if (otherProps.type === 'textarea') {
             return (
                 <textarea
-                    ref={ref as React.RefObject<HTMLTextAreaElement>}
+                    ref={ref as React.RefObject<HTMLTextAreaElement | null>}
                     id={inputId}
                     className={classNames('Input form-control', inputSize, inputClassName, {Input__focus: showLegend})}
                     value={value}
@@ -245,11 +244,12 @@ const Input = React.forwardRef((
                     onFocus={handleOnFocus}
                     onBlur={handleOnBlur}
                     onChange={handleOnChange}
-                />);
+                />
+            );
         }
         return (
             <input
-                ref={ref as React.RefObject<HTMLInputElement>}
+                ref={ref as React.RefObject<HTMLInputElement | null>}
                 id={inputId}
                 className={classNames('Input form-control', inputSize, inputClassName, {Input__focus: showLegend})}
                 value={value}
