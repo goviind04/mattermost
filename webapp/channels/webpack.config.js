@@ -106,6 +106,10 @@ var config = {
             {
                 test: /\.(png|eot|tiff|svg|woff2|woff|ttf|gif|mp3|jpg)$/,
                 type: 'asset/resource',
+
+                // Exclude font files from image optimization — imagemin-svgo
+                // cannot handle SVG font files and fails on Node.js >= 22
+                exclude: /node_modules\/(font-awesome|fonts)\//,
                 use: [
 
                     // Skip image optimizations during development to speed up build time
@@ -114,6 +118,12 @@ var config = {
                         options: {},
                     },
                 ],
+            },
+            {
+                // Font files from node_modules — serve as-is without image optimization
+                test: /\.(eot|svg|woff2|woff|ttf)$/,
+                include: /node_modules\/(font-awesome|fonts)\//,
+                type: 'asset/resource',
             },
             {
                 test: /\.apng$/,
